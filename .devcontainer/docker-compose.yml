@@ -15,9 +15,9 @@ services:
     command: /bin/sh -c "while sleep 1000; do :; done"
 
   dynamodb-local:
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
-    image: amazon/dynamodb-local:latest
     container_name: dynamodb-local
+    image: amazon/dynamodb-local:latest
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
     ports:
       - 8000:8000
     volumes:
