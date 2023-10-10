@@ -24,7 +24,7 @@ class Session(Model):
         host = 'http://dynamodb-local:8000' if not "AWS_EXECUTION_ENV" in os.environ else None
         aws_access_key_id = 'DUMMY' if not "AWS_EXECUTION_ENV" in os.environ else None
         aws_secret_access_key = 'DUMMY' if not "AWS_EXECUTION_ENV" in os.environ else None
-    sesstion_id = UnicodeAttribute(hash_key=True)
+    session_id = UnicodeAttribute(hash_key=True)
     messages = ListAttribute(of=Message)
 
 if not "AWS_EXECUTION_ENV" in os.environ:
