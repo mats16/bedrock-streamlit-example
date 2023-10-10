@@ -5,6 +5,7 @@ import boto3
 from pynamodb.models import Model
 from pynamodb.attributes import UnicodeAttribute, JSONAttribute, MapAttribute, ListAttribute
 import streamlit as st
+from streamlit.runtime.scriptrunner import get_script_run_ctx
 
 AWS_REGION = os.environ.get('AWS_REGION', 'us-west-2')
 
@@ -15,9 +16,9 @@ class Message(MapAttribute):
     role = UnicodeAttribute()
     content = UnicodeAttribute()
 
-class Sesstion(Model):
+class Session(Model):
     class Meta:
-        table_name = 'Session'
+        table_name = 'ChatSession'
         region = AWS_REGION
         # for DynamoDB Local
         host = 'http://dynamodb-local:8000' if not "AWS_EXECUTION_ENV" in os.environ else None
@@ -27,20 +28,20 @@ class Sesstion(Model):
     messages = ListAttribute(of=Message)
 
 if not "AWS_EXECUTION_ENV" in os.environ:
-    Sesstion.create_table(read_capacity_units=1, write_capacity_units=1)
+    Session.create_table(read_capacity_units=1, write_capacity_units=1)
 
-# 初期化
-if 'session_id' not in st.session_state:
-    session_id = str(uuid.uuid4())
-    st.session_state['session_id'] = session_id
-    Sesstion(session_id, messages=[]).save()
+# Session ID を取得
+ctx = get_script_run_ctx()
+session_id = ctx.session_id
+
+# DynamoDB からセッション情報を取得
+try:
+    session = Session.get(session_id)
+except:
+    session = Session(session_id, messages=[])
 
 # チャットボットとやりとりする関数
 def communicate():
-    # DynamoDB からセッション情報を取得
-    session_id = st.session_state['session_id']
-    session = Sesstion.get(session_id)
-
     # ユーザの入力内容を追加
     user_message = Message(role='Human', content=st.session_state['user_input'])
     session.messages.append(user_message)
@@ -82,19 +83,13 @@ def communicate():
 # ユーザーインターフェイスの構築
 st.title('[Demo] Bedrock Chat')
 st.write('Bedrock と Streamlit を利用したチャットアプリです。')
-st.write('Session ID: ' + st.session_state['session_id'])
 
 user_input = st.text_input('メッセージを入力してください。', key='user_input', on_change=communicate)
 
-if 'session_id' in st.session_state:
-    # DynamoDB からセッション情報を取得
-    session_id = st.session_state['session_id']
-    session = Sesstion.get(session_id)
+# チャットメッセージを表示
+for msg in reversed(session.messages):  # 直近のメッセージを上に
+    speaker = "🙂"
+    if msg['role'] == 'Assistant':
+        speaker = "🤖"
 
-    # チャットメッセージを表示
-    for msg in reversed(session.messages):  # 直近のメッセージを上に
-        speaker = "🙂"
-        if msg['role'] == 'Assistant':
-            speaker = "🤖"
-
-        st.write(speaker + ': ' + msg['content'])
+    st.write(speaker + ': ' + msg['content'])
