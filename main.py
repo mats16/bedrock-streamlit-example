@@ -15,9 +15,11 @@ is_local: bool = True if os.environ.get('AWS_EXECUTION_ENV', '') == '' else Fals
 # Bedrock Client
 bedrock = boto3.client(service_name='bedrock-runtime', region_name=region)
 
+
 class Message(MapAttribute):
     role = UnicodeAttribute()
     content = UnicodeAttribute()
+
 
 class Session(Model):
     """DynamoDB Table に保存されるセッション情報"""
@@ -31,8 +33,9 @@ class Session(Model):
     SessionId = UnicodeAttribute(hash_key=True)
     Messages = ListAttribute(of=Message)
 
+
 if is_local:
-    Session.create_table(read_capacity_units=1, write_capacity_units=1, wait=True)
+    Session.create_table(read_capacity_units=1, write_capacity_units=1)
 
 # Session ID を取得
 ctx = get_script_run_ctx()
@@ -45,6 +48,7 @@ except:
     # ない場合は新規に作成（DynamoDB Table へはまだ書き込みに行かない）
     system_message = Message(role='Human', content='<admin>You are a friendly AI assistant.</admin>')
     session = Session(session_id, Messages=[system_message])
+
 
 # チャットボットとやりとりする関数
 def communicate():

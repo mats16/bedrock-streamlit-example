@@ -16,18 +16,21 @@ from streamlit.runtime.scriptrunner import get_script_run_ctx
 region: str = os.environ.get('AWS_REGION', 'us-east-1')
 table_name: str = os.environ.get('TABLE_NAME', 'ChatSession')
 is_local: bool = True if os.environ.get('AWS_EXECUTION_ENV', '') == '' else False
-endpoint_url: str|None = 'http://dynamodb-local:8000' if is_local else None
+endpoint_url: str | None = 'http://dynamodb-local:8000' if is_local else None
 
 # Bedrock Client
 bedrock = boto3.client(service_name='bedrock-runtime', region_name=region)
+
 
 class Data(MapAttribute):
     type = UnicodeAttribute()
     content = UnicodeAttribute()
 
+
 class Message(MapAttribute):
     type = UnicodeAttribute()
     data = Data()
+
 
 class Session(Model):
     """Langchain のメモリー機能用 DynamoDB Table"""
@@ -41,8 +44,9 @@ class Session(Model):
     SessionId = UnicodeAttribute(hash_key=True)
     History = ListAttribute(of=Message)
 
+
 if is_local:
-    Session.create_table(read_capacity_units=1, write_capacity_units=1, wait=True)
+    Session.create_table(read_capacity_units=1, write_capacity_units=1)
 
 # Session ID を取得
 ctx = get_script_run_ctx()
@@ -54,6 +58,7 @@ try:
 except:
     # ない場合は新規に作成（DynamoDB Table へはまだ書き込みに行かない）
     session = Session(session_id, History=[])
+
 
 # チャットボットとやりとりする関数
 def communicate():
