@@ -11,6 +11,8 @@ Streamlit 単体でもセッション（履歴）管理することは可能で�
 
 devcontainer を利用しないが DynamoDB Local を利用したい場合は、下記コマンドで手動で DynamoDB Local を起動してください。
 
+※ この場合、`endpoint_url` は `http://localhost:8000` になります。
+
 ```bash
 docker-compose -f .devcontainer/docker-compose.yml up dynamodb-local
 ```
