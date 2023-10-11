@@ -3,7 +3,17 @@
 Bedrock を利用したアプリケーションのプロトタイピングを行うための最低限の実装です。
 Streamlit 単体でもセッション（履歴）管理することは可能ですが、本実装する際のことを考慮しデフォルトで DynamoDB を利用するようにしています。
 
+## ローカルでの開発
+
 [devcontainer](.devcontainer/devcontainer.json) を利用することで DynamoDB Local をバックグラウンドで自動起動することができます。
+
+### devcontainer を利用しない場合
+
+devcontainer を利用しないが DynamoDB Local を利用したい場合は、下記コマンドで手動で DynamoDB Local を起動してください。
+
+```bash
+docker-compose -f .devcontainer/docker-compose.yml up dynamodb-local
+```
 
 ## AWS Credentials
 
