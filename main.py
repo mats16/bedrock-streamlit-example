@@ -26,8 +26,8 @@ class Session(Model):
         host = 'http://dynamodb-local:8000' if is_local else None
         aws_access_key_id = 'DUMMY' if is_local else None
         aws_secret_access_key = 'DUMMY' if is_local else None
-    session_id = UnicodeAttribute(hash_key=True)
-    messages = ListAttribute(of=Message)
+    SessionId = UnicodeAttribute(hash_key=True)
+    Messages = ListAttribute(of=Message)
 
 if is_local:
     Session.create_table(read_capacity_units=1, write_capacity_units=1)
@@ -42,16 +42,16 @@ try:
 except:
     # ない場合は新規に作成（DynamoDB Table へはまだ書き込みに行かない）
     system_message = Message(role='Human', content='<admin>You are a friendly AI assistant.</admin>')
-    session = Session(session_id, messages=[system_message])
+    session = Session(session_id, Messages=[system_message])
 
 # チャットボットとやりとりする関数
 def communicate():
     # ユーザの入力内容をセッション情報に追加
     user_message = Message(role='Human', content=st.session_state['user_input'])
-    session.messages.append(user_message)
+    session.Messages.append(user_message)
 
     # prompt 向けに整形
-    prompt = '\n\n'.join([f"{msg['role']}: {msg['content']}" for msg in session.messages]) + '\n\nAssistant:'
+    prompt = '\n\n'.join([f"{msg['role']}: {msg['content']}" for msg in session.Messages]) + '\n\nAssistant:'
 
     # Bedrock API のリクエストボディを定義
     body = json.dumps({
@@ -75,7 +75,7 @@ def communicate():
 
     # セッション情報にボットメッセージを追加
     bot_message = Message(role='Assistant', content=bot_message_content)
-    session.messages.append(bot_message)
+    session.Messages.append(bot_message)
 
     # DynamoDB Table に保存
     session.save()
@@ -92,7 +92,7 @@ st.write('Bedrock と Streamlit を利用したチャットアプリです。')
 user_input = st.text_input('メッセージを入力してください。', key='user_input', on_change=communicate)
 
 # チャットメッセージを表示
-for msg in reversed(session.messages):
+for msg in reversed(session.Messages):
     speaker = "🙂"
     if msg['role'] == 'Assistant':
         speaker = "🤖"

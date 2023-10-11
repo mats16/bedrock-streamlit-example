@@ -64,7 +64,7 @@ def communicate():
     prompt = ChatPromptTemplate.from_messages([
         SystemMessagePromptTemplate.from_template('You are a friendly AI assistant.'),
         MessagesPlaceholder(variable_name='chat_history'),
-        HumanMessagePromptTemplate.from_template('{input}')
+        HumanMessagePromptTemplate.from_template('{input}')  # chain.run() 実行時の input が代入される
     ])
 
     llm = BedrockChat(
