@@ -13,7 +13,7 @@ from langchain.prompts.chat import ChatPromptTemplate, MessagesPlaceholder, Syst
 import streamlit as st
 from streamlit.runtime.scriptrunner import get_script_run_ctx
 
-region: str = os.environ.get('AWS_REGION', 'us-west-2')
+region: str = os.environ.get('AWS_REGION', 'us-east-1')
 table_name: str = os.environ.get('TABLE_NAME', 'ChatSession')
 is_local: bool = True if os.environ.get('AWS_EXECUTION_ENV', '') == '' else False
 endpoint_url: str|None = 'http://dynamodb-local:8000' if is_local else None
