@@ -1,6 +1,7 @@
 # Bedrock Streamlit Example
 
 Bedrock を利用したアプリケーションのプロトタイピングを行うための最低限の実装です。
+Streamlit 単体でもセッション（履歴）管理することは可能ですが、本実装する際のことを考慮しデフォルトで DynamoDB を利用するようにしています。
 
 [devcontainer](.devcontainer/devcontainer.json) を利用することで DynamoDB Local をバックグラウンドで自動起動することができます。
 
