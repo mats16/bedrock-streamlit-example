@@ -55,6 +55,7 @@ def communicate():
     prompt = '\n\n'.join([f"{msg['role']}: {msg['content']}" for msg in session.Messages]) + '\n\nAssistant:'
 
     # Bedrock API のリクエストボディを定義
+    # https://us-west-2.console.aws.amazon.com/bedrock/home?region=us-west-2#/providers?model=claude-v2
     body = json.dumps({
         'prompt': prompt,
         'max_tokens_to_sample': 8000,

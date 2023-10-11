@@ -68,6 +68,7 @@ def communicate():
         HumanMessagePromptTemplate.from_template('{input}')  # chain.run() 実行時の input が代入される
     ])
 
+    # https://us-west-2.console.aws.amazon.com/bedrock/home?region=us-west-2#/providers?model=claude-v2
     llm = BedrockChat(
         model_id='anthropic.claude-v2',
         model_kwargs={
