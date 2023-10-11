@@ -1,1 +1,1 @@
-.gitignore/docker/dynamodb/*
+.devcontainer/docker/dynamodb/*
