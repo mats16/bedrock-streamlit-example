@@ -30,7 +30,7 @@ class Session(Model):
     Messages = ListAttribute(of=Message)
 
 if is_local:
-    Session.create_table(read_capacity_units=1, write_capacity_units=1)
+    Session.create_table(read_capacity_units=1, write_capacity_units=1, wait=True)
 
 # Session ID を取得
 ctx = get_script_run_ctx()

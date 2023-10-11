@@ -46,7 +46,7 @@ class Session(Model):
     History = ListAttribute(of=Message)
 
 if is_local:
-    Session.create_table(read_capacity_units=1, write_capacity_units=1)
+    Session.create_table(read_capacity_units=1, write_capacity_units=1, wait=True)
 
 # Session ID を取得
 ctx = get_script_run_ctx()
@@ -89,7 +89,7 @@ def communicate():
 
 # ユーザーインターフェイスの構築
 st.title('[Demo] Bedrock Chat')
-st.write('Bedrock と Streamlit を利用したチャットアプリです。')
+st.write('Bedrock と Streamlit および Langchain を利用したチャットアプリです。')
 
 # チャットの入力フォーム
 user_input = st.text_input('メッセージを入力してください。', key='user_input', on_change=communicate)
