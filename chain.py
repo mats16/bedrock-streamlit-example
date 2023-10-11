@@ -1,22 +1,17 @@
-import json
 import os
-import uuid
 import boto3
+# PynamoDB
 from pynamodb.models import Model
-from pynamodb.attributes import UnicodeAttribute, JSONAttribute, MapAttribute, ListAttribute
-import streamlit as st
-from streamlit.runtime.scriptrunner import get_script_run_ctx
-
-from langchain.chat_models.bedrock import BedrockChat
+from pynamodb.attributes import UnicodeAttribute, MapAttribute, ListAttribute
+# Langchain
+from langchain.chat_models import BedrockChat
 from langchain.memory import ConversationBufferMemory
 from langchain.memory.chat_message_histories.dynamodb import DynamoDBChatMessageHistory
 from langchain.chains import LLMChain
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    MessagesPlaceholder,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
+from langchain.prompts.chat import ChatPromptTemplate, MessagesPlaceholder, SystemMessagePromptTemplate, HumanMessagePromptTemplate
+# Streamlit
+import streamlit as st
+from streamlit.runtime.scriptrunner import get_script_run_ctx
 
 region: str = os.environ.get('AWS_REGION', 'us-west-2')
 table_name: str = os.environ.get('TABLE_NAME', 'ChatSession')

@@ -1,9 +1,10 @@
 import json
 import os
-import uuid
 import boto3
+# PynamoDB
 from pynamodb.models import Model
-from pynamodb.attributes import UnicodeAttribute, JSONAttribute, MapAttribute, ListAttribute
+from pynamodb.attributes import UnicodeAttribute, MapAttribute, ListAttribute
+# Streamlit
 import streamlit as st
 from streamlit.runtime.scriptrunner import get_script_run_ctx
 
