@@ -7,10 +7,12 @@ from pynamodb.attributes import UnicodeAttribute, JSONAttribute, MapAttribute, L
 import streamlit as st
 from streamlit.runtime.scriptrunner import get_script_run_ctx
 
-AWS_REGION = os.environ.get('AWS_REGION', 'us-west-2')
+region: str = os.environ.get('AWS_REGION', 'us-west-2')
+table_name: str = os.environ.get('TABLE_NAME', 'ChatSession')
+is_local: bool = True if os.environ.get('AWS_EXECUTION_ENV', '') == '' else False
 
 # Bedrock Client
-bedrock = boto3.client(service_name='bedrock-runtime', region_name=AWS_REGION)
+bedrock = boto3.client(service_name='bedrock-runtime', region_name=region)
 
 class Message(MapAttribute):
     role = UnicodeAttribute()
@@ -18,38 +20,40 @@ class Message(MapAttribute):
 
 class Session(Model):
     class Meta:
-        table_name = 'ChatSession'
-        region = AWS_REGION
+        table_name = table_name
+        region = region
         # for DynamoDB Local
-        host = 'http://dynamodb-local:8000' if not "AWS_EXECUTION_ENV" in os.environ else None
-        aws_access_key_id = 'DUMMY' if not "AWS_EXECUTION_ENV" in os.environ else None
-        aws_secret_access_key = 'DUMMY' if not "AWS_EXECUTION_ENV" in os.environ else None
+        host = 'http://dynamodb-local:8000' if is_local else None
+        aws_access_key_id = 'DUMMY' if is_local else None
+        aws_secret_access_key = 'DUMMY' if is_local else None
     session_id = UnicodeAttribute(hash_key=True)
     messages = ListAttribute(of=Message)
 
-if not "AWS_EXECUTION_ENV" in os.environ:
+if is_local:
     Session.create_table(read_capacity_units=1, write_capacity_units=1)
 
 # Session ID を取得
 ctx = get_script_run_ctx()
 session_id = ctx.session_id
 
-# DynamoDB からセッション情報を取得
 try:
+    # DynamoDB Table からセッション情報を取得
     session = Session.get(session_id)
 except:
-    session = Session(session_id, messages=[])
+    # ない場合は新規に作成（DynamoDB Table へはまだ書き込みに行かない）
+    system_message = Message(role='Human', content='<admin>You are a friendly AI assistant.</admin>')
+    session = Session(session_id, messages=[system_message])
 
 # チャットボットとやりとりする関数
 def communicate():
-    # ユーザの入力内容を追加
+    # ユーザの入力内容をセッション情報に追加
     user_message = Message(role='Human', content=st.session_state['user_input'])
     session.messages.append(user_message)
 
     # prompt 向けに整形
     prompt = '\n\n'.join([f"{msg['role']}: {msg['content']}" for msg in session.messages]) + '\n\nAssistant:'
 
-    # Bedrock API のリクエストボディ
+    # Bedrock API のリクエストボディを定義
     body = json.dumps({
         'prompt': prompt,
         'max_tokens_to_sample': 300,
@@ -69,11 +73,11 @@ def communicate():
     response_body = json.loads(response.get('body').read())
     bot_message_content = response_body.get('completion')
 
-    # セッションデータにボットメッセージを追加
+    # セッション情報にボットメッセージを追加
     bot_message = Message(role='Assistant', content=bot_message_content)
     session.messages.append(bot_message)
 
-    # DynamoDB に保存
+    # DynamoDB Table に保存
     session.save()
 
     # 入力欄を消去
@@ -84,10 +88,11 @@ def communicate():
 st.title('[Demo] Bedrock Chat')
 st.write('Bedrock と Streamlit を利用したチャットアプリです。')
 
+# チャットの入力フォーム
 user_input = st.text_input('メッセージを入力してください。', key='user_input', on_change=communicate)
 
 # チャットメッセージを表示
-for msg in reversed(session.messages):  # 直近のメッセージを上に
+for msg in reversed(session.messages):
     speaker = "🙂"
     if msg['role'] == 'Assistant':
         speaker = "🤖"
