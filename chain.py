@@ -71,7 +71,9 @@ def communicate():
     llm = BedrockChat(
         model_id='anthropic.claude-v2',
         model_kwargs={
-            'temperature':0.1,
+            'temperature': 0.1,
+            'top_p': 0.9,
+            'stop_sequences': ['\\n\\nHuman:'],
         }
     )
 

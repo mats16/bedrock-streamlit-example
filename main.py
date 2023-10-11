@@ -57,9 +57,10 @@ def communicate():
     # Bedrock API のリクエストボディを定義
     body = json.dumps({
         'prompt': prompt,
-        'max_tokens_to_sample': 300,
+        'max_tokens_to_sample': 8000,
         'temperature': 0.1,
         'top_p': 0.9,
+        'stop_sequences': ['\\n\\nHuman:'],
     })
 
     # Bedrock API を呼び出し
