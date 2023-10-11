@@ -19,6 +19,7 @@ class Message(MapAttribute):
     content = UnicodeAttribute()
 
 class Session(Model):
+    """DynamoDB Table に保存されるセッション情報"""
     class Meta:
         table_name = table_name
         region = region

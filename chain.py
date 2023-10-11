@@ -35,6 +35,7 @@ class Message(MapAttribute):
     data = Data()
 
 class Session(Model):
+    """Langchain のメモリー機能用 DynamoDB Table"""
     class Meta:
         table_name = table_name
         region = region
