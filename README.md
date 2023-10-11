@@ -33,7 +33,7 @@ aws configure --profile default
 どちらもチャットの一時記憶領域に DynamoDB を使用しています。
 
 ```bash
-streamlit run main.py # use AWS SDK
+streamlit run main.py # use AWS SDK (boto3)
 
 streamlit run chain.py # use Langchain
 ```
